@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="{% static 'plugin/bootstrap-datetimepicker/css/bootstrap-datetimepicker.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <form class="form-horizontal form-border" id="form" method="post" action="">
+                        {% csrf_token %}
+                         {% ifequal action 'edit' %}
+                         <div class="form-group" style="display:none">
+                         {% else %}
+                         <div class="form-group">
+                         {% endifequal %}
+                              <label class="col-sm-3 control-label">{{ form.sheet.label_tag }}</label>
+                              <div class="col-sm-6">
+                                  {{ form.sheet }}
+                                  {{ form.sheet.errors }}
+                              </div>
+                          </div>
+                         <div class="form-group">
+                             <label class="col-sm-3 control-label">{{ form.date.label_tag }}</label>
+                             <div class="col-sm-6">
+									      <div class="input-group date form_date">
+                                   {{ form.date }}
+                                   <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                                   <span class="input-group-addon"> 
+                                     <span class="glyphicon glyphicon-calendar"></span> 
+                                   </span>
+											</div>
+                                 {{ form.date.errors }}
+                             </div>
+                         </div>
+                         <div class="form-group">
+                             <label class="col-sm-3 control-label">{{ form.time.label_tag }}</label>
+                             <div class="col-sm-6">
+                                 <div class="input-group date form_time"> <!--data-date="2017-08-10 22:11" data-date-format="yyyy-mm-dd HH:ii"> -->
+                                   {{ form.time }}
+                                   <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                                   <span class="input-group-addon"><span class="glyphicon glyphicon-time"></span></span>
+                                 </div>
+                                 {{ form.time.errors }}
+                             </div>
+                         </div>
+                         <div class="form-group">
+                              <label class="col-sm-3 control-label">{{ form.department.label_tag }}</label>
+                              <div class="col-sm-6">
+                                  {{ form.department }}
+                                  {{ form.department.errors }}
+                              </div>
+                          </div>
+                         <div class="form-group">
+                              <label class="col-sm-3 control-label">{{ form.people.label_tag }}</label>
+                              <div class="col-sm-6">
+                                  {{ form.people }}
+                                  {{ form.people.errors }}
+                              </div>
+                         </div>
+                         <div class="form-group">
+                              <label class="col-sm-3 control-label">{{ form.problem.label_tag }}</label>
+                              <div class="col-sm-6">
+                                  {{ form.problem }}
+                                  {{ form.problem.errors }}
+                              </div>
+                         </div>
+                         <div class="form-group">
+                              <label class="col-sm-3 control-label">{{ form.handler.label_tag }}</label>
+                              <div class="col-sm-6">
+                                  {{ form.handler }}
+                                  {{ form.handler.errors }}
+                              </div>
+                         </div>
+                         <div class="form-group">
+                              <label class="col-sm-3 control-label">{{ form.result.label_tag }}</label>
+                              <div class="col-sm-6">
+                                  {{ form.result }}
+                                  {{ form.result.errors }}
+                              </div>
+                         </div>
+                         <div class="form-group">
+                              <label class="col-sm-3 control-label">{{ form.status.label_tag }}</label>
+                              <div class="col-sm-6">
+                                  {{ form.status }}
+                                  {{ form.status.errors }}
+                              </div>
+                         </div>
+                         <div class="form-group">
+                              <label class="col-sm-3 control-label">{{ form.end_time.label_tag }}</label>
+                              <div class="col-sm-6">
+                                 <div class="input-group date form_end_time">
+                                   {{ form.end_time }}
+                                   <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                                   <span class="input-group-addon"><span class="glyphicon glyphicon-time"></span></span>
+                                 </div>
+                                  {{ form.end_time.errors }}
+                              </div>
+                         </div>
+								 <div class="col-sm-9">
+                           <div class="pull-right">
+                              {% ifequal action 'add' %}
+                              <button type="submit" class="btn btn-primary btn-lg">添加</button>
+                              {% endifequal %}
+                              {% ifequal action 'edit' %}
+                              <button type="submit" class="btn btn-primary btn-lg" name="operate" value="update">更新</button>
+                              {% endifequal %}
+                           </div>
+								 </div>
+                    </form>
+
+                </div> <!-- panel body -->
+            </div> <!-- panel end -->
+        </div> <!-- col end -->
+    </div>
+{% endblock %}
+
+{% block js %}
+<script src="{% static 'plugin/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js' %}"></script>
+<script>
+    $(document).ready(function() {
+        $('.form_date').datetimepicker({
+            format: 'yyyy-mm-dd',
+            minView: 'month', //选择日期后，不会再跳转去选择时分秒
+				weekStart: 0,
+				todayBtn:  true,
+            keyboardNavigation: false,
+            forceParse: false,
+            autoclose: true,
+            pickerPosition: "bottom-right",
+        });
+		  // 需要修改js文件，否则会报错，因为编辑页面初始化时时间框中格式不符合js Date初始化格式
+        $('.form_time').datetimepicker({
+            format: 'hh:ii:ss',
+				startView: 1,
+			   minView: 0,
+			   maxView: 1,
+				weekStart: 0,
+				todayBtn:  1,
+				minuteStep: 1,
+				//initialDate: new Date(),
+            keyboardNavigation: false,
+            forceParse: false,
+            autoclose: true,
+        });
+        $('.form_end_time').datetimepicker({
+            format: 'hh:ii:ss',
+				startView: 1,
+			   minView: 0,
+			   maxView: 1,
+				weekStart: 0,
+				todayBtn:  1,
+				minuteStep: 1,
+            keyboardNavigation: false,
+            forceParse: false,
+            autoclose: true,
+            pickerPosition: "top-right",
+        });
+    });
+</script>
+{% endblock %}

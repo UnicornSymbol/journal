@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+{% load static %}
+{% load paginate_tag %}
+{% block css %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/dataTables.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/sweetalert.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="row">
+<div class="col-md-12">
+    <div class="panel panel-primary">
+        <div class="panel-body">
+          <button id='create_btn' class="btn btn-sm btn-primary pull-right">创建表格</button>
+          <div style="margin-top:45px">
+            <table class="table table-striped table-bordered table-hover" id="table" >
+                <colgroup>
+                  <col width="10%">
+                  <col width="60%">
+                  <col width="30%">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th class="text-center">序号</th>
+                        <th class="text-center">标题</th>
+                        <th class="text-center">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sheet in sheets %}
+                        <tr>   
+                          <td class="text-center">{{ forloop.counter | serial:page }}</td>
+                          <td class="text-center"><a href="/journal/journal_list/?title={{ sheet.title }}">{{ sheet.title }}</a></td>
+                          <td class="text-center">
+                              <a id="edit_btn" class="btn btn-info btn-xs" data-toggle="modal" data-target="#dialog_create" data-backdrop="static" data-id={{ sheet.id }}>编辑</a>
+                              <a id="del_btn" style="color:white" class="btn btn-danger btn-xs" role="button">删除</a>
+                          </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+          </div>
+          <div class="row">
+              <div class="col-sm-6">
+                  <div class="dataTables_info" id="editable_info" role="status" aria-live="polite">
+                    显示第 {{ sheets.start_index }} 至 {{ sheets.end_index }} 项结果，共 {{ paginator.count }} 项
+                  </div>
+              </div>
+              <div class="col-sm-6">
+                  <div class="dataTables_paginate paging_simple_numbers" id="editable_paginate">
+                      <ul class="pagination" style="margin-top: 0; float: right">
+                          {% if sheets.has_previous %}
+                          <li class="paginate_button previous" aria-controls="editable" tabindex="0" id="previous">
+                              <a class="page" data-page="next" href="?page={{ sheets.previous_page_number}}">‹</a>
+                          </li>
+                          {% endif %}
+
+                          {% for page in paginator.num_pages|pagination_range:sheets.number %}
+                              {% if page == sheets.number %}
+                                  <li class="paginate_button active" aria-controls="editable" tabindex="0">
+                              {% else %}
+                                  <li class="paginate_button" aria-controls="editable" tabindex="0">
+                              {% endif %}
+                                      <a class="page" href="?page={{ page }}" title="第{{ page }}页">{{ page }}</a>
+                                  </li>
+                          {% endfor %}
+
+                          {% if sheets.has_next %}
+                              <li class="paginate_button next" aria-controls="editable" tabindex="0" id="next">
+                                  <a class="page" data-page="next" href="?page={{ sheets.next_page_number }}">›</a>
+                              </li>
+                          {% endif %}
+                      </ul>
+                  </div>
+              </div>
+          </div>
+        </div>
+    </div>
+</div>
+</div>
+<div class="modal" id="dialog_create">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 id="modal_name">创建表格</h4>
+			</div>
+			<div class="modal-body">
+				<form class="form-horizontal" role="form" method="post" id="form_create">
+					{% csrf_token %}
+					<div class="form-group">
+						<label for="title" class="col-sm-2 control-label">标题</label>
+						<div class="col-sm-6">
+							<input type="text" class="form-control" name="title" id="title" placeholder="标题" value="">
+						</div>
+						<div class="col-sm-4">
+							<button type="button" class="btn btn-primary" id="modal_btn">创建</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="{% static 'js/bootstrap-datepicker.js' %}"></script>
+<script src="{% static 'js/sweetalert.min.js' %}"></script>
+<script>
+    $(document).ready(function() {
+        $('.page').click(function(){
+            var searchStr = location.search;
+            var old_href = $(this).attr('href').replace('?', '');
+            var searchArray = searchStr.split('&');
+            if (searchStr == ''){
+                searchStr = '?page=1'
+            }
+            if (searchStr.indexOf('page')>=0){
+                searchArray.pop();
+            }
+            searchArray.push(old_href);
+            if (searchArray.length > 1) {
+                $(this).attr('href', searchArray.join('&'));
+            }
+        });
+        $('#create_btn').click(function(){
+            $('#title').val("");
+            $('#modal_name').text("创建表格")
+            $('#modal_btn').text("创建")
+            $('#dialog_create').modal({backdrop: 'static'})
+        });
+        // 获取id相同元素
+        $('[id=edit_btn]').click(function(){
+            //var id = $(this).attr("id");
+            //bootstrap通过data-参数名自定义参数，这里通过这个方法将sheet id传递给modal
+            var id = $(this).data("id")
+            var index = $(this).parent().parent().index()
+            //alert(index)
+            var title = document.getElementById("table").rows[index+1].cells[1].innerText;
+            $('#title').val(title);
+            $('#modal_name').text("编辑表格")
+            $('#modal_btn').text("更新")
+            $('#modal_btn').data("id", id)
+            $('#dialog_create').modal({backdrop: 'static'})
+        });
+        $("#dialog_create").on('show.bs.modal', function(){ //在调用show方法后触发
+            var $this = $(this);
+            var $modal_dialog = $this.find('.modal-dialog');
+            // 关键代码，如没将modal设置为 block，则$modala_dialog.height() 为零
+            $this.css('display', 'block');
+            $modal_dialog.css({'margin-top': Math.max(0, ($(window).height() - $modal_dialog.height()) / 3) });
+        });
+        $("#modal_btn").click(function(){
+            var title = $("#title").val();
+            var modal_name = $("#modal_name").text();
+            var id = $(this).data("id")
+            //alert(modal_name)
+            $.ajaxSetup({
+                data: {csrfmiddlewaretoken: '{{ csrf_token }}'},
+            });
+            if (modal_name == "创建表格"){
+                $.ajax({
+                    type:"POST",
+                    url:"{% url 'sheet_add' %}",
+                    data:{"title": title},
+                    dataType:"json",
+                    // 返回的数据也必须为json格式，否则不会进入success函数
+                    success: function(ret){
+                       if (ret["status"] == "成功"){
+                         $('#dialog_create').modal('hide');
+                         swal({
+							        title: "添加成功",
+							        text: ret["message"],
+	      			           type: "success",
+					              confirmButtonText: "确定"
+				      	    },function() {
+                             window.location.reload()
+                         });
+                       } else if (ret["status"] == "失败") {
+                         swal({             
+                             title: "添加失败",
+                             text: ret["error"],     
+                             type: "error", 
+                             confirmButtonColor: "#DD6B55",
+                             confirmButtonText: "确定"
+                         });
+                       }
+                    },
+                    error: function(){
+                       //alert("error")
+                    }
+                })
+            } else {
+                $.ajax({
+                    type:"POST",
+                    url:"{% url 'sheet_edit' %}",
+                    data:{"id": id, "title": title},
+                    dataType:"json",
+                    success: function(ret){
+                       //$('#result').html(ret.result)
+                       if (ret["status"] == "成功"){
+                         $('#dialog_create').modal('hide');
+                         swal({        
+                             title: "更新成功",
+                             text: ret["message"],
+                             type: "success",
+                             confirmButtonText: "确定"
+                         },function() {
+                             window.location.reload()
+                         });           
+                       } else if (ret["status"] == "失败") {
+                         swal({             
+                             title: "更新失败",
+                             text: ret["error"],     
+                             type: "error", 
+                             confirmButtonColor: "#DD6B55",
+                             confirmButtonText: "确定"
+                         });           
+                       }         
+                    }
+                })
+
+            }
+        });
+        $("[id=del_btn]").click(function(){
+            var index = $(this).parent().parent().index()
+            var title = document.getElementById("table").rows[index+1].cells[1].innerText;
+            /*var msg = "您真的确定要删除吗？\n\n请确认！"; 
+            if (confirm(msg)==true){ 
+                return true; 
+            } else { 
+                return false; 
+            }*/
+            swal({
+              title: "确认删除?",
+              text: "Your will not be able to recover this file!",
+              type: "warning",
+              showCancelButton: true,
+              confirmButtonColor: "#DD6B55",
+              confirmButtonText: "确认",
+              cancelButtonText: "取消",
+              closeOnConfirm: false,
+              //closeOnCancel: false
+            },function(isConfirm){
+              if (isConfirm) {
+                 $.ajax({
+                    type:"GET",
+                    url:"{% url 'sheet_delete' %}",
+                    data:{"title": title,"delete": 1},
+                    dataType:"json",
+                    success: function(ret){
+                       swal({
+                           title: "删除成功",
+                           text: ret["message"],
+                           type: "success",
+                           confirmButtonText: "确定"
+                       },function() {
+                           window.location.reload()
+                       });
+                    }
+                })
+              } else {
+              }
+          });
+        });
+    });
+</script>
+{% endblock %}

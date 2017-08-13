@@ -1,0 +1,65 @@
+{% extends "base.html" %}  
+
+{% block css %}
+<style>
+.wrapper{margin:220px auto;width:50%;border:1px solid;}
+h2{font-size:20px;font-weight:normal;border-bottom:1px solid #ddd;line-height:1.6em;}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container wrapper">
+   <h2>修改密码</h2>
+   {% if error %}
+     <div class="alert alert-warning text-center">{{ error }}</div>
+   {% endif %}
+	<form class="form-horizontal" role="form" method="post" action="">
+     {% csrf_token %}
+	  <div class="form-group">
+	    <label class="col-sm-4 control-label">{{ form.oldpassword.label_tag }}</label>
+	    <div class="col-sm-8">
+	      {{ form.oldpassword }} 
+	      <span style="color:red">{{ form.oldpassword.errors }}</span>
+	    </div>
+	  </div>
+	  <div class="form-group">
+	    <label class="col-sm-4 control-label">{{ form.newpassword1.label_tag }}</label>
+	    <div class="col-sm-8">
+	      {{ form.newpassword1 }} 
+	      <span style="color:red">{{ form.newpassword1.errors }}</span>
+	    </div>
+	  </div>
+	  <div class="form-group">
+	    <label class="col-sm-4 control-label">{{ form.newpassword2.label_tag }}</label>
+	    <div class="col-sm-8">
+	      {{ form.newpassword2 }} 
+	      <span style="color:red">{{ form.newpassword2.errors }}</span>
+	    </div>
+	  </div>
+	  <div class="form-group">
+       <div class="col-sm-8 col-sm-offset-4">
+	 	   <button type="submit" class="btn btn-primary" id="submit" style="text-align:center;">确认修改</button>
+       </div>
+	  </div>
+	</form>
+</div>
+<!--
+    <h2>修改密码</h2>  
+      
+    {% if oldpassword_is_wrong %}  
+        <div class="alert alert-error">  
+            <button type="button" class="close" data-dismiss="alert">×</button>  
+            <h4>错误!</h4>原密码不正确  
+        </div>  
+    {% endif %}  
+    <div class="well">  
+        <form class="form-horizontal" action="" method="post">  
+            {% csrf_token %}  
+            {{ form }}  
+            <p class="form-actions">  
+                <input type="submit" value="确认修改" class="btn btn-primary">  
+            </p>  
+        </form>  
+    </div>  
+-->
+{% endblock %}

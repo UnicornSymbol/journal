@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+    <title>Journal</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap-reset.css">
+    {% block css %}{% endblock %}
+    <!-- start:style for this page -->
+    <!--<link href="plugins/jquery-easy-pie-chart/jquery.easy-pie-chart.css" rel="stylesheet">-->
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+
+<header class="navbar navbar-fixed-top">
+	<div>
+		<nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+			<ul class="nav navbar-nav">
+				<li class="active">
+					<a href="{% url 'journal_list' %}">Journal</a>
+				</li>
+            <!--
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown">UI Kit <b class="caret"></b></a>
+					<ul class="dropdown-menu dropdown-menu-lg">
+						<li><a href="general.html">General</a></li>
+						<li><a href="buttons.html">Buttons</a></li>
+						<li><a href="notifications.html">Notifications</a></li>
+						<li><a href="panels.html">Panels</a></li>
+						<li><a href="typography.html">Typography</a></li>
+						<li><a href="icons.html">Icons</a></li>
+						<li><a href="grid.html">Grid</a></li>
+						<li><a href="blank.html">Blank page</a></li>               
+					</ul>
+				</li>
+            -->
+				<li>
+					<a href="{% url 'sheet_list' %}">表格管理</a>
+				</li>
+				<li>
+					<a href="{% url 'journal_add' %}">日志添加</a>
+				</li>
+			</ul>
+			
+			<!-- Mini navigation start -->
+			<ul class="nav navbar-nav navbar-right hidden-sm hidden-xs">
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown"  data-hover="dropdown"><i class="fa fa-user"></i>{{ request.user }}<b class="caret"></b></a>
+					<ul class="dropdown-menu">
+						<li><a href="{% url 'changepwd' %}">修改密码</a></li>
+						<li><a href="{% url 'logout' %}">登出</a></li>
+					</ul>
+				</li>
+			</ul>
+			<!-- Mini navigation end -->
+
+		</nav>
+	</div>
+</header>
+<div style="margin-top:50px">
+    {% block content%}
+    {% endblock %}
+</div>
+
+<!-- start:javascript for all pages -->
+<!-- start:jquery -->
+<script src="/static/js/jquery-1.12.4.min.js"></script>
+<!-- start:bootstrap -->
+<script src="/static/js/bootstrap.min.js"></script>
+
+{% block js %}{% endblock %}
+
+</body>
+</html>
